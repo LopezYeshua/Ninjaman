@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>NinjaMan</title>
+	<style type="text/css">
+		* {
+			margin:  0;
+			padding: 0;
+		}
+		.row {
+			line-height: 0;
+
+		}
+		.wall {
+			background-color: blue;
+			height: 40px;
+			width:  40px;
+			display: inline-block;
+		}
+		.sushi {
+			background-color: black;
+			height: 40px;
+			width:  40px;
+			display: inline-block;
+			background-image: url('img/sushi.png');
+			background-size: contain;
+		}
+		.onigiri {
+			background-color: black;
+			height: 40px;
+			width:  40px;
+			display: inline-block;
+			background-image: url('img/onigiri.png');
+			background-size: contain;
+		}
+		.blank {
+			background-color: black;
+			height: 40px;
+			width:  40px;
+			display: inline-block;
+		}
+		#ninjaman {
+			background-color: black;
+			height: 40px;
+			width:  40px;
+			display: inline-block;
+			background-image: url('img/ninja.gif');
+			background-size: contain;
+			position:  absolute;
+		}
+	</style>
+</head>
+<body>
+	<div id='world'></div>
+	<div id='ninjaman'></div>
+</body>
+<script type ="text/javascript">
+	var score = 0;
+	var world = [
+		[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+		[5,4,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+		[5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],
+	];
+	var worldDict = {
+		0: 'blank',
+		1: 'wall',
+		2: 'sushi',
+		3: 'onigiri',
+		4: 'blank', // Player Start
+		5: 'wall'
+	}
+
+	function randWalls() {
+		// Randomize walls within the world.
+		for (var row = 0; row < world.length; row++) {
+			for (var col = 0; col < world[row].length; col++) {
+				// Set random walls
+				if (world[row][col] == 0) {
+					world[row][col] = Math.floor(Math.random() * 2);
+				}
+			}
+		}
+		console.log(world);
+		for (var row = 0; row < world.length; row++) {
+			for (var col = 0; col < world[row].length; col++) {
+				// Organize random walls 
+				if (world[row][col] == 1) {
+					continue;
+				}
+				else if (world[row][col] == 0) {
+					if (world[row][col+1] && world[row+1][col] && world[row+1][col+1] == 0) {
+						world[row][col] = 1;
+					}
+					else if (world[row-1][col+1] && world[row][col+1] && world[row+1][col+1] == 0) {
+						world[row][col] = 1;
+					}
+				}
+			}
+		}
+	}
+
+	function randFoods() {
+		// Randomize Sushi and Onigiri in empty spots.
+		for (var row = 0; row < world.length; row++) {
+			for (var col = 0; col < world[row].length; col++) {
+				if (world[row][col] == 0) {
+					world[row][col] = Math.floor((Math.random() * 2) + 2);
+				}
+			}
+		}
+	}
+
+	function randWorld() {
+		// Randomize world generation.
+		randWalls();
+			
+		for (var row = 0; row < world.length; row++) {
+			for (var col = 0; col < world[row].length; col++) {
+				if (world[row][col] != 4 && world[row][col] != 5) {
+					if (world[row][col-1] == 4 || world[row-1][col] == 4) {
+						world[row][col] = 0;
+					}
+				}
+			}
+		}
+		randFoods();
+	}	
+
+	function drawWorld() {
+		// Draw world
+		output = "";
+		for (var row = 0; row < world.length; row++) {
+			output += "<div class = 'row'>"
+			for (var x = 0; x < world[row].length; x++) {
+				output += "<div class = '" + worldDict[
+						world[row][x]] + "'></div>"
+			}
+			output += "</div>"
+		}
+		document.getElementById('world').innerHTML = output;
+	}
+
+	randWorld();
+	drawWorld();
+
+	var ninjaman = {
+		x: 1,
+		y: 1
+	}
+
+
+	function drawNinjaman() {
+		// Draw ninja man on designated area.
+		document.getElementById("ninjaman").style.left = ninjaman.x * 40 + "px"
+		document.getElementById("ninjaman").style.top = ninjaman.y * 40 + "px"
+	}
+	drawNinjaman()
+
+	var points = {
+		blank: 0,
+		onigiri: 5,
+		sushi: 10,
+	}
+
+	function updateScore() {
+		// Updates Players score and displays it on screen.
+		if (world[ninjaman.y][ninjaman.x] == 0) {
+			score += points.blank;
+		}
+		if (world[ninjaman.y][ninjaman.x] == 2) {
+			score += points.sushi;
+		}
+		if (world[ninjaman.y][ninjaman.x] == 3) {
+			score += points.onigiri;
+		}
+		// TODO-- Display score to screen.
+		console.log(score)
+	}
+
+	function updateKeys(e) {
+		// Updates direction of ninja man.
+		if(e.keyCode == 37) { // left
+			if(world[ninjaman.y][ninjaman.x-1] != 1 && world[ninjaman.y][ninjaman.x-1] != 5) {
+				ninjaman.x--;
+			}
+		}
+		if (e.keyCode == 39) { // right
+			if(world[ninjaman.y][ninjaman.x+1] != 1 && world[ninjaman.y][ninjaman.x+1] != 5) {
+				ninjaman.x++;
+			}
+		}
+		if(e.keyCode == 40) { // down
+			if(world[ninjaman.y+1][ninjaman.x] != 1 && world[ninjaman.y+1][ninjaman.x] != 5) {
+				ninjaman.y++;
+			}
+		}
+		if (e.keyCode == 38) { // up
+			if(world[ninjaman.y-1][ninjaman.x] != 1 && world[ninjaman.y-1][ninjaman.x] != 5) {
+				ninjaman.y--;
+			}
+		}
+	}
+
+	document.onkeydown = function(e) {
+		// Document key events.
+		updateKeys(e)
+		updateScore()
+		world[ninjaman.y][ninjaman.x] = 0;
+		drawNinjaman()
+		drawWorld()
+	}
+
+</script>
+</html>
